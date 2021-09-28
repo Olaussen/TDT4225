@@ -14,14 +14,18 @@ class DbConnector:
     PASSWORD = "test123" // The password you set for said user
     """
 
-    def __init__(self,
-                 HOST="tdt4225-xx.idi.ntnu.no",
-                 DATABASE="DATABASE_NAME",
-                 USER="TEST_USER",
-                 PASSWORD="test123"):
+    def __init__(
+        self,
+        HOST="tdt4225-xx.idi.ntnu.no",
+        DATABASE="DATABASE_NAME",
+        USER="TEST_USER",
+        PASSWORD="test123",
+    ):
         # Connect to the database
         try:
-            self.db_connection = mysql.connect(host=HOST, database=DATABASE, user=USER, password=PASSWORD, port=3306)
+            self.db_connection = mysql.connect(
+                host=HOST, database=DATABASE, user=USER, password=PASSWORD, port=3306
+            )
         except Exception as e:
             print("ERROR: Failed to connect to db:", e)
 
