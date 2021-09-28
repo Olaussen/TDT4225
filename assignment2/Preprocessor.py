@@ -53,6 +53,7 @@ class Preprocessor:
         root = self.format_path(self.root, "Data")
         for user in os.listdir(root):
             user_path = self.format_path(root, user + "/Trajectory")
+            print("Constructing activities for user:", user)
             for activity in os.listdir(user_path):
                 activity_path = self.format_path(user_path, activity)
                 valid = self.validated_activity(activity_path)
@@ -68,12 +69,7 @@ class Preprocessor:
                 else:
                     # TODO Check whether the labels correspond to this activity
                     continue
+                break
+            break
         return activities
 
-
-def main():
-    p = Preprocessor()
-    #p.construct_activity_list()
-
-
-main()

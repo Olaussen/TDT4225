@@ -50,9 +50,9 @@ def main():
     program = None
     try:
         program = DbHandler()
-        # program.insert_data_user() Already run
-        program.insert_data_activity()
-        _ = program.fetch_data(table_name="activity")
+        #program.insert_data_user()
+        #program.insert_data_activity()
+        _ = program.fetch_data(table_name="user")
         program.show_tables()
     except Exception as e:
         print("ERROR: Failed to use database:", e)

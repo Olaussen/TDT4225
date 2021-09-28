@@ -1,5 +1,6 @@
 import mysql.connector as mysql
 from decouple import config
+
 class DbConnector:
     """
     Connects to the MySQL server on the Ubuntu virtual machine.
@@ -15,9 +16,9 @@ class DbConnector:
 
     def __init__(
         self,
-        HOST="localhost",
-        DATABASE="tdt4225_gr69",
-        USER="group69_user",
+        HOST=config("DBHOST"),
+        DATABASE=config("DBNAME"),
+        USER=config("DBUSER"),
         PASSWORD=config("DBPASS"),
     ):
         # Connect to the database
