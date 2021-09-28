@@ -16,7 +16,7 @@ class DbConnector:
     def __init__(
         self,
         HOST="localhost",
-        DATABASE="tdt4225_test",
+        DATABASE="tdt4225_gr69",
         USER="group69_user",
         PASSWORD=config("DBPASS"),
     ):
