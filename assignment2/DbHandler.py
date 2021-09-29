@@ -20,14 +20,28 @@ class DbHandler:
         self.db_connection.commit()
 
     def insert_data_activity(self):
+        user = None
         for activity in self.preprocessor.activities:
-            print(activity)
-            # Take note that the name is wrapped in '' --> '%s' because it is a string,
-            # while an int would be %s etc
+            if not user == activity["user_id"]:
+                user = activity["user_id"]
+                print("Inserting activities for user:", user)
             query = "INSERT INTO %s (id, user_id, transportation_mode, start_date_time, end_date_time) VALUES (%d, '%s', '%s', '%s', '%s')"
             self.cursor.execute(query % ("activity", activity["id"], activity["user_id"],
                                          activity["transportation_mode"], activity["start_date_time"], activity["end_date_time"]))
             self.db_connection.commit()
+        print("Insertion finished without error!")
+
+    def insert_data_trackpoint(self):
+        activity = None
+        for trackpoint in self.preprocessor.trackpoints:
+            if not activity == trackpoint["activity_id"]:
+                activity = trackpoint["activity_id"]
+                print("Inserting trackpoints for activity:", activity)
+            query = "INSERT INTO %s (activity_id, lat, lon, altitude, date_days, date_time) VALUES (%d, %s, %s, %d, %s, '%s')"
+            self.cursor.execute(query % ("trackpoint", trackpoint["activity_id"],
+                                         trackpoint["lat"], trackpoint["lon"], trackpoint["altitude"], trackpoint["date_days"], trackpoint["date_time"]))
+            self.db_connection.commit()
+        print("Insertion finished without error!")
 
     def fetch_data(self, table_name):
         query = "SELECT * FROM %s"
@@ -50,10 +64,9 @@ def main():
     program = None
     try:
         program = DbHandler()
-        #program.insert_data_user()
-        #program.insert_data_activity()
-        _ = program.fetch_data(table_name="user")
-        program.show_tables()
+        # program.insert_data_user()
+        # program.insert_data_activity()
+        program.insert_data_trackpoint()
     except Exception as e:
         print("ERROR: Failed to use database:", e)
     finally:
