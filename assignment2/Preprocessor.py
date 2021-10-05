@@ -10,9 +10,6 @@ from datetime import datetime
 class Preprocessor:
     def __init__(self):
         self.root = "./dataset"
-        #self.users = self.construct_user_list()
-        #self.activities = self.construct_activity_list()
-        #self.trackpoints = self.construct_trackpoint_list()
 
     """
         Function for calculating the number of lines in a file.
@@ -31,7 +28,8 @@ class Preprocessor:
         returns: boolean - True if less than or equal to 2500 relevant lines, else False
     """
     def validated_activity(self, path):
-        return self.line_count(path) <= 2506
+        length = self.line_count(path)
+        return length > 2506 and length < 2512
 
     """
         Function for finding the start and end time of an activity.
@@ -204,9 +202,3 @@ class Preprocessor:
                         # Writing data to a file
                         f.write("{id},{lat},{lon},{alt},{days},{time}\n".format(id=activity_id, lat=lat, lon=lon, alt=alt, days=days, time=time))
                         
-
-def main():
-    p = Preprocessor()
-    print(len(p.activities))
-
-#main()

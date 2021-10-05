@@ -44,14 +44,10 @@ class DbHandler:
         print("Insertion finished without error!")
 
     def fetch_data(self, table_name):
-        query = "SELECT * FROM %s"
+        query = "SELECT * FROM trackpoint WHERE activity_id = %s"
         self.cursor.execute(query % table_name)
         rows = self.cursor.fetchall()
-        print("Data from table %s, raw format:" % table_name)
-        print(rows)
         # Using tabulate to show the table in a nice way
-        print("Data from table %s, tabulated:" % table_name)
-        print(tabulate(rows, headers=self.cursor.column_names))
         return rows
 
     def show_tables(self):
@@ -59,14 +55,13 @@ class DbHandler:
         rows = self.cursor.fetchall()
         print(tabulate(rows, headers=self.cursor.column_names))
 
-
 def main():
     program = None
     try:
         program = DbHandler()
         # program.insert_data_user()
         # program.insert_data_activity()
-        program.insert_data_trackpoint()
+        # program.insert_data_trackpoint()
     except Exception as e:
         print("ERROR: Failed to use database:", e)
     finally:
