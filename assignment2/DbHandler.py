@@ -55,6 +55,7 @@ class DbHandler:
         rows = self.cursor.fetchall()
         print(tabulate(rows, headers=self.cursor.column_names))
 
+
 def main():
     program = None
     try:
