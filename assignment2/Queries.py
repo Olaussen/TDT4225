@@ -71,11 +71,11 @@ class Queries:
     # TASK 6
     def covid_19_tracking(self):
         print("\n TASK 6 \n")
-        query = "SELECT t1.id, t2.id, t1.user_id, t2.user_id FROM activity AS t1 JOIN activity AS t2 ON (t1.transportation_mode = NULL OR t2.transportation_mode = NULL OR t1.transportation_mode = t2.transportation_mode AND(DATE_SUB(t1.start_date_time, INTERVAL 30 second) > t2.start_date_time AND DATE_SUB(t1.start_date_time, INTERVAL 30 second) < t2.end_date_time) OR (DATE_ADD(t1.end_date_time, INTERVAL 30 second) > t2.start_date_time AND DATE_ADD(t1.end_date_time, INTERVAL 30 second) < t2.start_date_time) OR (DATE_ADD(t1.end_date_time, INTERVAL 30 second) > t2.end_date_time AND DATE_SUB(t1.start_date_time, INTERVAL 30 second) < t2.start_date_time)) LIMIT 100"
+        query = "SELECT t1.id, t2.id, t1.user_id, t2.user_id FROM activity AS t1 JOIN activity AS t2 ON (t1.transportation_mode = NULL OR t2.transportation_mode = NULL OR t1.transportation_mode = t2.transportation_mode AND(DATE_SUB(t1.start_date_time, INTERVAL 30 second) > t2.start_date_time AND DATE_SUB(t1.start_date_time, INTERVAL 30 second) < t2.end_date_time) OR (DATE_ADD(t1.end_date_time, INTERVAL 30 second) > t2.start_date_time AND DATE_ADD(t1.end_date_time, INTERVAL 30 second) < t2.start_date_time) OR (DATE_ADD(t1.end_date_time, INTERVAL 30 second) > t2.end_date_time AND DATE_SUB(t1.start_date_time, INTERVAL 30 second) < t2.start_date_time))"
         self.cursor.execute(query)
         activities_within_60_sec = self.cursor.fetchall()
         users = []
-        for i, res in enumerate(activities_within_60_sec[:100]):
+        for i, res in enumerate(activities_within_60_sec):
             print("Activity number:", i)
             self.cursor.execute("SELECT * FROM trackpoint WHERE activity_id = {}".format(res[0]))
             a1_trackpoints = self.cursor.fetchall()
@@ -88,8 +88,10 @@ class Queries:
                         users.append(res[2])
                         users.append(res[3])
                         break
-        print(set(users))
-        return set(users)
+        user_ids = len(set(users))
+        print("The users who have been close to another both in time and space are:", user_ids)
+        print("There are", len(user_ids),"users in the list")
+        return user_ids
 
 
 
