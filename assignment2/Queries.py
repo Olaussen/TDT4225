@@ -77,7 +77,7 @@ class Queries:
         self.cursor.execute(query)
         activities_within_60_sec = self.cursor.fetchall()
         print("Calculating times and distance")
-        users = []
+        users = set()
         for i in range(len(activities_within_60_sec)):
             print("Checking activity:", i+1)
             a1 = activities_within_60_sec[i][0]
@@ -99,12 +99,11 @@ class Queries:
                         continue
                     close_space = distance((t1[0], t1[1]), (t2[0], t2[1])) < 0.1
                     if close_space:
-                        if not u1_already_in:
-                            users.append(u1)
-                        if not u2_already_in:
-                            users.append(u2)
+                        users.add(u1)
+                        users.add(u2)
                         break
-        print(users)
+        print("There are", len(users), "users who needs to be contacted, as they have been close to other users")
+        return users
 
 
 
@@ -222,7 +221,7 @@ def main():
     # q.find_duplicate_activities()
 
     # TASK 6
-    q.covid_19_tracking()
+    #q.covid_19_tracking()
 
     # TASK 7
     # q.never_taken_taxi()
