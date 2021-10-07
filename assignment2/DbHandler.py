@@ -128,9 +128,9 @@ def main():
         #program.drop_table('trackpoint')
         #program.drop_table('activity')
         #program.drop_table('user')
-        program.insert_data_user()
-        program.insert_data_activity()
-        program.insert_data_trackpoint()
+        #program.insert_data_user()
+        #program.insert_data_activity()
+        #program.insert_data_trackpoint()
     except Exception as e:
         print("ERROR: Failed to use database:", e)
     finally:
