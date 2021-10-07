@@ -67,6 +67,7 @@ class Queries:
         result = self.cursor.fetchall()
         result = [res[0].split(",") for res in result]
         print("Returned a list of lists containing id of activities with matching 'transportation_mode', 'start_date_time' and 'end_date_time'")
+        print("It contains", len(result), "elements")
         return result
 
     # TASK 6
@@ -79,7 +80,6 @@ class Queries:
         print("Calculating times and distance")
         users = set()
         for i in range(len(activities_within_60_sec)):
-            print("Checking activity:", i+1)
             a1 = activities_within_60_sec[i][0]
             a2 = activities_within_60_sec[i][1]
             u1 = activities_within_60_sec[i][2]
@@ -105,12 +105,6 @@ class Queries:
         print("There are", len(users), "users who needs to be contacted, as they have been close to other users")
         return users
 
-
-
-        trackpoints = self.cursor.fetchall()
-        
-        print(len(activities_within_60_sec))
-
     # TASK 7
     def never_taken_taxi(self):
         print("\n TASK 7 \n")
@@ -118,6 +112,7 @@ class Queries:
         self.cursor.execute(query)
         result = [res[0] for res in self.cursor.fetchall()]
         print("Resturned a list of ids for all users having not taken a taxi")
+        print("The list contains the ids of", len(result), "users")
         return result
 
      # TASK 8
@@ -197,6 +192,7 @@ class Queries:
         print("Top 3 users with most invalid activities")
         for i in range(3):
             print(i+1, "| User", result[i][0], "has", result[i][1], "invalid activities")
+        print("The function will return all the users, and how many invalid activities they have - if the have one")
         return result # The function returns the full result
 
 def distance(loc1, loc2):
@@ -206,43 +202,43 @@ def distance(loc1, loc2):
 def main():
     q = Queries()
     # TASK 1
-    # q.total_amount_of_entries()
+    q.total_amount_of_entries()
 
     # TASK 2
-    # q.min_max_avg_activities()
+    q.min_max_avg_activities()
 
     # TASK 3
-    # q.top_10_users_by_activities()
+    q.top_10_users_by_activities()
 
     # TASK 4
-    # q.users_start_on_one_day_end_the_next_day()
+    q.users_start_on_one_day_end_the_next_day()
 
     # TASK 5
-    # q.find_duplicate_activities()
+    q.find_duplicate_activities()
 
     # TASK 6
-    #q.covid_19_tracking()
+    q.covid_19_tracking()
 
     # TASK 7
-    # q.never_taken_taxi()
+    q.never_taken_taxi()
 
     # TASK 8
-    # q.transportation_mode_count()
+    q.transportation_mode_count()
 
     # TASK 9a
-    # q.most_active_year()
+    q.most_active_year()
 
     # TASK 9b
-    #q.user_with_most_activities_from_9a()
+    q.user_with_most_activities_from_9a()
 
     # TASK 10
-    #q.distance_walked_in_2008()
+    q.distance_walked_in_2008()
 
     # TASK 11
-    #q.most_altitude_gained()
+    q.most_altitude_gained()
 
     # Task 12
-    #q.invalid_activities()
+    q.invalid_activities()
 
 
 main()
