@@ -81,7 +81,6 @@ class Preprocessor:
         return None
 
     def preprocess(self):
-        count = 0
         for root, dirs, files in os.walk("./dataset/Data"):
             for user in dirs:
                 if user != "Trajectory":
@@ -99,7 +98,6 @@ class Preprocessor:
 
                     if opened.size > 2500:
                         continue
-                    count += 1
                     start, end = self.extract_date_times(opened)
                     if self.user_has_labeled(user_id):
                         if user_id != current_user:
