@@ -1,6 +1,7 @@
 from DbConnector import DbConnector
 from Preprocessor import Preprocessor
 from tabulate import tabulate
+from pickle import load
 
 
 class DbHandler:
@@ -8,7 +9,23 @@ class DbHandler:
         self.connection = DbConnector()
         self.db_connection = self.connection.db_connection
         self.cursor = self.connection.cursor
-        self.preprocessor = Preprocessor()
+        self.users = []
+        self.activities = []
+        self.trackpoints = []
+        self.load_preprocessed_data(users = True, activities = False, trackpoints = False)
+
+    def load_preprocessed_data(self, users = True, activities = True, trackpoints = True):
+        if users:
+            with open('users.pickle', 'rb') as file:
+                self.users = load(file)
+
+        if activities:
+            with open('activities.pickle', 'rb') as file:
+                self.activities = load(file)
+
+        if trackpoints:
+            with open('trackpoints.pickle', 'rb') as file:
+                self.trackpoints = load(file)
 
     def insert_data_user(self):
         for user in self.preprocessor.users:
