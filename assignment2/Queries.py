@@ -192,7 +192,7 @@ class Queries:
         print("Top 3 users with most invalid activities")
         for i in range(3):
             print(i+1, "| User", result[i][0], "has", result[i][1], "invalid activities")
-        print("The function will return all the users, and how many invalid activities they have - if the have one")
+        print("\nThe function will return all the users, and how many invalid activities they have - if the have one\n")
         return result # The function returns the full result
 
 def distance(loc1, loc2):
