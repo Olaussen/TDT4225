@@ -12,7 +12,6 @@ class Queries:
 
     # TASK 1
     def total_amount_of_entries(self):
-        start = time.time()
         print("\n TASK 1 \n")
         query = "SELECT (SELECT COUNT(id) FROM user) AS user_sum, (SELECT COUNT(id) FROM activity) AS activity_sum, (SELECT COUNT(id) FROM trackpoint) AS trackpoint_sum"
         self.cursor.execute(query)
@@ -21,13 +20,10 @@ class Queries:
         print("Amount of activities:", result[1])
         print("Amount of trackpoints:", result[2])
         print("Total amount of entries in database:", sum(result))
-        end = time.time()
-        print(end - start)
         return result
 
     # TASK 2
     def min_max_avg_activities(self):
-        start = time.time()
         print("\n TASK 2 \n")
         min_max_query = "SELECT user_id,COUNT(*) FROM activity GROUP BY activity.user_id ORDER BY COUNT(*) ASC"
         average_query = "SELECT COUNT(activity.id)/COUNT(DISTINCT(activity.user_id)) FROM activity"
@@ -40,13 +36,10 @@ class Queries:
         print("The minimal number of activities per user is:", min)
         print("The maximal number of activities per user is:", max)
         print("The average number of activities per user is:", average)
-        end = time.time()
-        print(end - start)
         return (min, max, average)
 
     # TASK 3
     def top_10_users_by_activities(self):
-        start = time.time()
         print("\n TASK 3 \n")
         query = "SELECT user_id,COUNT(*) FROM activity GROUP BY activity.user_id ORDER BY COUNT(*) DESC"
         self.cursor.execute(query)
@@ -55,25 +48,19 @@ class Queries:
             print(i+1, " User: ", user[0], "has", user[1], "activities")
 
         # List of tuples with format [(user_id, amount_of_activitues), ]
-        end = time.time()
-        print(end - start)
         return result
 
     # TASK 4
     def users_start_on_one_day_end_the_next_day(self):
-        start = time.time()
         print("\n TASK 4 \n")
         query = "SELECT COUNT(DISTINCT(activity.user_id)) FROM activity WHERE DATEDIFF(DATE_ADD(start_date_time, interval 1 day), end_date_time) = 0;"
         self.cursor.execute(query)
         result = self.cursor.fetchall()[0][0]
         print("Number of users who started an activity one day, and ended it the next:", result)
-        end = time.time()
-        print(end - start)
         return result
 
     # TASK 5
     def find_duplicate_activities(self):
-        start = time.time()
         print("\n TASK 5 \n")
         query = "SELECT GROUP_CONCAT(id ORDER BY id) AS duplicate_ids FROM activity GROUP BY transportation_mode, start_date_time, end_date_time HAVING COUNT(*) > 1"
         self.cursor.execute(query)
@@ -81,13 +68,10 @@ class Queries:
         result = [res[0].split(",") for res in result]
         print("Returned a list of lists containing id of activities with matching 'transportation_mode', 'start_date_time' and 'end_date_time'")
         print("It contains", len(result), "elements")
-        end = time.time()
-        print(end - start)
         return result
 
     # TASK 6
     def covid_19_tracking(self):
-        start = time.time()
         print("\n TASK 6 \n")
         query = "SELECT a1.id, a2.id, a1.user_id, a2.user_id FROM activity AS a1, activity AS a2 WHERE (a2.start_date_time BETWEEN DATE_SUB(a1.start_date_time, interval 1 minute) AND DATE_ADD(a1.end_date_time, interval 1 minute) OR a2.end_date_time BETWEEN DATE_SUB(a1.start_date_time, interval 1 minute) AND DATE_ADD(a1.end_date_time, interval 1 minute)) AND a1.id != a2.id AND a1.user_id != a2.user_id"
         print("Fetching overlapping activities in time \n")
@@ -119,26 +103,20 @@ class Queries:
                         users.add(u2)
                         break
         print("There are", len(users), "users who needs to be contacted, as they have been close to other users")
-        end = time.time()
-        print(end - start)
         return users
 
     # TASK 7
     def never_taken_taxi(self):
-        start = time.time()
         print("\n TASK 7 \n")
         query = "SELECT DISTINCT id FROM user WHERE id NOT IN (SELECT DISTINCT user_id FROM activity WHERE transportation_mode = 'taxi')"
         self.cursor.execute(query)
         result = [res[0] for res in self.cursor.fetchall()]
         print("Resturned a list of ids for all users having not taken a taxi")
         print("The list contains the ids of", len(result), "users")
-        end = time.time()
-        print(end - start)
         return result
 
      # TASK 8
     def transportation_mode_count(self):
-        start = time.time()
         print("\n TASK 8 \n")
         query = "SELECT transportation_mode, COUNT(DISTINCT user_id) FROM activity WHERE transportation_mode IS NOT NULL GROUP BY transportation_mode"
         self.cursor.execute(query)
@@ -146,8 +124,6 @@ class Queries:
         for tup in result:
             print("Transportation mode",
                   tup[0], "has been used by", tup[1], "discinct users")
-        end = time.time()
-        print(end - start)
         return result
 
     # TASK 9a
@@ -176,7 +152,6 @@ class Queries:
 
     # TASK 10
     def distance_walked_in_2008(self):
-        start = time.time()
         print("\n TASK 10 \n")
         query = "SELECT activity_id, lat, lon FROM trackpoint JOIN (SELECT id FROM activity WHERE user_id = 112 AND transportation_mode = 'walk' AND YEAR(start_date_time)= 2008) AS activities WHERE YEAR(trackpoint.date_time) = 2008 AND trackpoint.activity_id = activities.id;"
         self.cursor.execute(query)
@@ -196,26 +171,20 @@ class Queries:
                 part_distance = 0
             part_distance += distance((lat1, lon1), (lat2, lon2))
         print("User 112 walked {}km in 2008".format(total_distance))
-        end = time.time()
-        print(end - start)
         return total_distance
 
     # TASK 11
     def most_altitude_gained(self):
-        start = time.time()
         print("\n TASK 11 \n")
         query = "SELECT a1.user_id, SUM(altitude_gained) * 0.3048 FROM (SELECT t1.activity_id AS aid, SUM(t2.altitude - t1.altitude) AS altitude_gained FROM trackpoint AS t1 JOIN  trackpoint AS t2 ON  t1.id = t2.id - 1 WHERE t2.altitude > t1.altitude AND t1.altitude != -777 AND t2.altitude != -777 GROUP BY t1.activity_id) AS tab, activity AS a1 WHERE aid = a1.id GROUP BY a1.user_id ORDER BY SUM(altitude_gained) DESC LIMIT 20;"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         for i, tup in enumerate(result):
             print(i+1, "| User", tup[0], "has gained", tup[1], "total meters")
-        end = time.time()
-        print(end - start)
         return result
 
     # TASK 12
     def invalid_activities(self):
-        start = time.time()
         print("\n TASK 12 \n")
         query = "SELECT activity.user_id, COUNT(DISTINCT(activity.id)) AS Invalid FROM activity JOIN activity AS a2 ON activity.user_id = a2.user_id JOIN trackpoint AS t1 ON t1.activity_id = activity.id JOIN trackpoint AS t2 ON t1.id = t2.id - 1 WHERE t1.activity_id = t2.activity_id AND timestampdiff(SECOND, t1.date_time, t2.date_time) >= 300 GROUP BY activity.user_id ORDER BY COUNT(DISTINCT activity.id) DESC"
         self.cursor.execute(query)
@@ -224,8 +193,6 @@ class Queries:
         for i in range(3):
             print(i+1, "| User", result[i][0], "has", result[i][1], "invalid activities")
         print("\nThe function will return all the users, and how many invalid activities they have - if the have one\n")
-        end = time.time()
-        print(end - start)
         return result # The function returns the full result
 
 def distance(loc1, loc2):
@@ -235,7 +202,7 @@ def distance(loc1, loc2):
 def main():
     q = Queries()
     # TASK 1
-    #q.total_amount_of_entries()
+    q.total_amount_of_entries()
 
     # TASK 2
     q.min_max_avg_activities()
@@ -250,7 +217,7 @@ def main():
     q.find_duplicate_activities()
 
     # TASK 6
-    #q.covid_19_tracking()
+    q.covid_19_tracking()
 
     # TASK 7
     q.never_taken_taxi()
