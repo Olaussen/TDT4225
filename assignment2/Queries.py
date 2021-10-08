@@ -29,8 +29,8 @@ class Queries:
         average_query = "SELECT COUNT(activity.id)/COUNT(DISTINCT(activity.user_id)) FROM activity"
         self.cursor.execute(min_max_query)
         min_max = self.cursor.fetchall()
-        min = min_max[0][1]
-        max = min_max[-1][1]
+        min = min_max[0][1]  # First element
+        max = min_max[-1][1] # Last element
         self.cursor.execute(average_query)
         average = self.cursor.fetchall()[0][0]
         print("The minimal number of activities per user is:", min)
@@ -66,6 +66,7 @@ class Queries:
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         result = [res[0].split(",") for res in result]
+        # Will return a list of all activities who have matching fields with other activities (except PK and user_id)
         print("Returned a list of lists containing id of activities with matching 'transportation_mode', 'start_date_time' and 'end_date_time'")
         print("It contains", len(result), "elements")
         return result
@@ -76,16 +77,20 @@ class Queries:
         query = "SELECT a1.id, a2.id, a1.user_id, a2.user_id FROM activity AS a1, activity AS a2 WHERE (a2.start_date_time BETWEEN DATE_SUB(a1.start_date_time, interval 1 minute) AND DATE_ADD(a1.end_date_time, interval 1 minute) OR a2.end_date_time BETWEEN DATE_SUB(a1.start_date_time, interval 1 minute) AND DATE_ADD(a1.end_date_time, interval 1 minute)) AND a1.id != a2.id AND a1.user_id != a2.user_id"
         print("Fetching overlapping activities in time \n")
         self.cursor.execute(query)
+        # A list of tuples containing the ids of activities who have trackpoints within 60 seconds of eachother and their user_ids.
+        # It is on the form [(id1, id2, uid1, uid2), (id3, id4, uid3, uid4), ]
         activities_within_60_sec = self.cursor.fetchall()
         print("Calculating times and distance")
         users = set()
         for i in range(len(activities_within_60_sec)):
-            a1 = activities_within_60_sec[i][0]
-            a2 = activities_within_60_sec[i][1]
-            u1 = activities_within_60_sec[i][2]
-            u2 = activities_within_60_sec[i][3]
+            a1 = activities_within_60_sec[i][0] # Activity 1
+            a2 = activities_within_60_sec[i][1] # Activity2
+            u1 = activities_within_60_sec[i][2] # User 1
+            u2 = activities_within_60_sec[i][3] # User 2
             u1_already_in = u1 in users
             u2_already_in = u2 in users
+            # If both users are already in the list, we do not need to check this activity, 
+            # as it would be redundant for the result
             if u1_already_in and u2_already_in:
                 continue
             self.cursor.execute("SELECT lat, lon, date_time FROM trackpoint WHERE activity_id = {}".format(a1))
@@ -95,9 +100,11 @@ class Queries:
             for t1 in a1_trackpoints:
                 for t2 in a2_trackpoints:
                     close_time = abs((t1[2]- t2[2]).total_seconds()) < 60
+                    # If the trackpoints are not close in time, no need to check for distance
                     if not close_time:
                         continue
                     close_space = distance((t1[0], t1[1]), (t2[0], t2[1])) < 0.1
+                    # If they are close in space as well as time, add their user ids to the set
                     if close_space:
                         users.add(u1)
                         users.add(u2)
@@ -158,13 +165,15 @@ class Queries:
         result = self.cursor.fetchall()
         current_activity = None
         total_distance = 0
-        part_distance = 0
+        part_distance = 0 # This is the distance for each activity
         for i in range(len(result)-1):
             lat1 = result[i][1]
             lon1 = result[i][2]
             lat2 = result[i+1][1]
             lon2 = result[i+1][2]
             next_id = result[i+1][0]
+            # If we are not on the same activity anymore, update the current_activity and 
+            # add the calculated distance to the total
             if(next_id != current_activity):
                 current_activity = next_id
                 total_distance += part_distance

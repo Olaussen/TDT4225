@@ -75,11 +75,17 @@ class Preprocessor:
             date_end_string = label["end"].replace("/", "-")
             label_start = datetime.fromisoformat(date_start_string)
             label_end = datetime.fromisoformat(date_end_string)
+            # If the parameters matches with one of the labels we return the label
             time_match = label_start == start and label_end == end
             if time_match:
                 return label["mode"]
         return None
 
+
+    """
+        Main function that will read all the data from the dataset folder and dump the preprocessed data
+        into three separate files for users, activities and trackpoints to be used in DbHandler.py
+    """
     def preprocess(self):
         for root, dirs, files in os.walk("./dataset/Data"):
             for user in dirs:
@@ -87,19 +93,25 @@ class Preprocessor:
                     self.users.append((str(user), self.user_has_labeled(user)))
 
             current_user = None
+            # This will be used for finding the labels for activities if a user has labeled them
             user_label_file = None
             for file in files:
                 if file.endswith(".plt"):
                     path = os.path.join(root, file)
                     user_id = path.split("./dataset/Data")[1][1:4]
+                    # As some users have activities with the same id, this will ensure unique keys in the database
                     activity_id = file.replace(".plt", "") + user_id
                     opened = pd.read_csv(
                         path, names=["lat", "lon", "skip", "alt", "days", "date", "time"], skiprows=6)
-
+                    
+                    # Discard the activity if it is too large
                     if opened.size > 2500:
                         continue
                     start, end = self.extract_date_times(opened)
                     if self.user_has_labeled(user_id):
+                        # If we are still on the same users activities, we have no need to read the labels.txt file
+                        # again, as it will be the same. This snippet only changes this file when we are on a new user,
+                        # hence having a different labels.txt file
                         if user_id != current_user:
                             current_user = user_id
                             print(current_user)
@@ -107,13 +119,17 @@ class Preprocessor:
                                 "./dataset/Data/%s/labels.txt" % (user_id), sep="\t", header=None, skiprows=1)
                             temp.columns = ["start", "end", "mode"]
                             user_label_file = temp
+                        # Checks whether or not the activity is labeled by the user
                         mode = self.has_transportation_mode(
                             user_label_file, start, end)
                         self.activities.append(
                             (activity_id, user_id, mode, start, end))
                     else:
+                        # If the user has not labeles any activity, it will be default None
                         self.activities.append(
                             (activity_id, user_id, None, start, end))
+
+                    # Adding all the trackpoints for this activity to the list
                     for _, trackpoint in opened.iterrows():
                         self.trackpoints.append((activity_id, trackpoint["lat"], trackpoint["lon"],
                                                  trackpoint["alt"], trackpoint["days"], "{} {}".format(trackpoint["date"], trackpoint["time"])))
@@ -122,6 +138,7 @@ class Preprocessor:
         print("Amount of activities:", len(self.activities))
         print("Amount of trackpoints:", len(self.trackpoints))
 
+        # Dumping the three lists in each their files using pickle
         print("Dumping users")
         with open('users.pickle', 'wb+') as file:
             dump(self.users, file)
