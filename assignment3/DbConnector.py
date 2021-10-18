@@ -13,11 +13,9 @@ class DbConnector:
     """
 
     def __init__(self,
-                 DATABASE='DATABASE_NAME',
-                 HOST="tdt4225-xx.idi.ntnu.no",
-                 USER="TEST_USER",
-                 PASSWORD="test123"):
-        uri = "mongodb://%s:%s@%s/%s" % (USER, PASSWORD, HOST, DATABASE)
+                 DATABASE='TDT4225_GROUP_69',
+                 HOST="10.22.3.127"):
+        uri = "mongodb://%s/%s" % (HOST, DATABASE)
         # Connect to the databases
         try:
             self.client = MongoClient(uri)
@@ -34,4 +32,4 @@ class DbConnector:
         # close the DB connection
         self.client.close()
         print("\n-----------------------------------------------")
-        print("Connection to %s-db is closed" % self.db.name)
+        print("Connection to %s is closed" % self.db.name)
