@@ -81,6 +81,9 @@ class Preprocessor:
                 return label["mode"]
         return None
 
+
+    
+
     """
         Main function that will read all the data from the dataset folder and dump the preprocessed data
         into three separate files for users, activities and trackpoints to be used in DbHandler.py
@@ -89,24 +92,20 @@ class Preprocessor:
     def preprocess(self):
         current_user = {"_id": "000", "has_labeled": False}
         current_activities = []
-        count = 1
         for root, _, files in os.walk("./dataset/Data"):
             user_id = root.split("./dataset/Data")[1][1:4]
             is_trajectory = root.split("./dataset/Data")[1][5:] != ""
-            if not is_trajectory:
+            if not is_trajectory or user_id != "181":
                 continue
 
             if user_id != current_user["_id"]:
-                if count > 11: 
-                    break
                 current_user["activities"] = current_activities
-                self.users.append(current_user)
+                #self.users.append(current_user)
                 has_labeled = self.user_has_labeled(user_id)
                 current_user = {"_id": user_id,
                                 "has_labeled": has_labeled}
                 current_activities = []
                 print("Currently on user:", user_id)
-                count += 1
             for file in files:
                 path = os.path.join(root, file)
                 activity_id = file[:-4] + user_id
@@ -122,20 +121,27 @@ class Preprocessor:
                     mode = self.has_transportation_mode(
                         labels_file, start, end)
                     activity = {"_id": activity_id, "transportation_mode": mode,
-                                "start_date_time": str(start), "end_date_time": str(end)}
+                                "start_date_time": start, "end_date_time": end}
                 else:
                     activity = {"_id": activity_id, "transportation_mode": None,
-                                "start_date_time": str(start), "end_date_time": str(end)}
+                                "start_date_time": start, "end_date_time": end}
                 for _, trackpoint in opened.iterrows():
-                    self.trackpoints.append({"activity_id": activity_id, "lat": trackpoint["lat"], "lon": trackpoint["lon"],
-                                        "altitude": trackpoint["alt"], "date_days": trackpoint["days"], "date_time": "{} {}".format(trackpoint["date"], trackpoint["time"])})
+                    date = datetime.fromisoformat("{} {}".format(trackpoint["date"], trackpoint["time"]))
+                    self.trackpoints.append({"activity_id": activity_id, "location": {"type": "Point", "coordinates": [trackpoint["lon"], trackpoint["lat"]]},
+                                        "altitude": trackpoint["alt"], "date_days": trackpoint["days"], "date_time": date})
                 current_activities.append(activity)
+        current_user["activities"] = current_activities
+        self.users.append(current_user)
 
+        print(self.users)
+
+        """
         with open("users.json", "w") as f:
             dump(self.users, f)
         
         with open("trackpoints.json", "w") as f:
             dump(self.trackpoints, f)
+        """
 
 
 def main():
