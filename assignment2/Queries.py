@@ -69,6 +69,7 @@ class Queries:
         # Will return a list of all activities who have matching fields with other activities (except PK and user_id)
         print("Returned a list of lists containing id of activities with matching 'transportation_mode', 'start_date_time' and 'end_date_time'")
         print("It contains", len(result), "elements")
+        print(result)
         return result
 
     # TASK 6
@@ -211,16 +212,16 @@ def distance(loc1, loc2):
 def main():
     q = Queries()
     # TASK 1
-    q.total_amount_of_entries()
+    #q.total_amount_of_entries()
 
     # TASK 2
-    q.min_max_avg_activities()
+    #q.min_max_avg_activities()
 
     # TASK 3
-    q.top_10_users_by_activities()
+    #q.top_10_users_by_activities()
 
     # TASK 4
-    q.users_start_on_one_day_end_the_next_day()
+    #q.users_start_on_one_day_end_the_next_day()
 
     # TASK 5
     q.find_duplicate_activities()

@@ -95,12 +95,12 @@ class Preprocessor:
         for root, _, files in os.walk("./dataset/Data"):
             user_id = root.split("./dataset/Data")[1][1:4]
             is_trajectory = root.split("./dataset/Data")[1][5:] != ""
-            if not is_trajectory or user_id != "181":
+            if not is_trajectory:
                 continue
 
             if user_id != current_user["_id"]:
                 current_user["activities"] = current_activities
-                #self.users.append(current_user)
+                self.users.append(current_user)
                 has_labeled = self.user_has_labeled(user_id)
                 current_user = {"_id": user_id,
                                 "has_labeled": has_labeled}
@@ -132,8 +132,6 @@ class Preprocessor:
                 current_activities.append(activity)
         current_user["activities"] = current_activities
         self.users.append(current_user)
-
-        print(self.users)
 
         """
         with open("users.json", "w") as f:

@@ -15,7 +15,7 @@ class DbConnector:
 
     def __init__(self,
                  DATABASE='TDT4225_gr69',
-                 HOST="84.202.106.55"):
+                 HOST="localhost"):
         uri = "mongodb://%s/%s" % (HOST, DATABASE)
         # Connect to the databases
         print(uri)
