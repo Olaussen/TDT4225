@@ -122,7 +122,6 @@ class Queries:
         checked = []
         result = []
         for u1 in users:
-            print(u1["_id"])
             for u2 in users:
                 if u1["_id"] == u2["_id"] or (u1["_id"], u2["_id"]) in checked:
                     continue
@@ -145,16 +144,16 @@ def main():
     q = Queries()
 
     # TASK 1
-    # q.count_all_entries()
+    q.count_all_entries()
 
     # TASK 2
-    # q.average_max_min()
+    q.average_max_min()
 
     # TASK 3
-    # q.top_10_users()
+    q.top_10_users()
 
     # TASK 4
-    # q.started_one_day_ended_next()
+    q.started_one_day_ended_next()
 
     # TASK 5
     q.duplicate_activities()

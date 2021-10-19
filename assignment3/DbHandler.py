@@ -48,7 +48,7 @@ def main():
         #program.drop_coll(collection_name='users')
         #program.drop_coll(collection_name='trackpoints')
         #program.create_coll("users")
-        #program.create_coll("trackpoints")
+        program.create_coll("trackpoints")
         program.insert_documents("users", p.users)
         program.insert_documents("trackpoints", p.trackpoints)
         #program.update_coordinated()
