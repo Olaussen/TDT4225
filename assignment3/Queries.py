@@ -287,7 +287,6 @@ class Queries:
 
         result = []
         for user in users:
-            print("User", user["_id"])
             ac_list = user["activities"]
             total_user_alt = 0
             total_ac_alt = 0
@@ -318,7 +317,6 @@ class Queries:
 
         result = []
         for user in users:
-            print("User", user["_id"])
             ac_list = user["activities"]
             ac_count = 0
             for ac in ac_list:
