@@ -1,3 +1,4 @@
+from typing import List
 from DbConnector import DbConnector
 import time
 import datetime
@@ -9,23 +10,22 @@ class Queries:
         self.client = self.connection.client
         self.db = self.connection.db
 
+    
     # TASK 1
     def count_all_entries(self):
         start = time.time()
-        print("\nTASK 1 \n \n")
+        print("\nTASK 1\n \n")
         users = self.db["users"]
-        users = users.find({})
-        total_users = 0
-        total_activities = 0
+        total_users  = users.count_documents(filter={})
+        total_activities = users.aggregate([
+            {"$unwind": "$activities"},
+            {"$count":"activities"}]).next()
         total_trackpoints = self.db["trackpoints"].count_documents({})
-        for user in users:
-            total_users += 1
-            total_activities += len(user["activities"])
-
         print("Total amount of users:", total_users)
-        print("Total amount of activities:", total_activities)
+        print("Total amount of activities:", total_activities['activities'])
         print("Total amount of trackpoints:", total_trackpoints)
         print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
+    
 
     # TASK 2
     def average_max_min(self):
@@ -50,6 +50,30 @@ class Queries:
         print("Maximum number of activitites:", ac_max)
         print("Average number of activitites:", ac_avg)
         print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
+    
+    # TASK 2 ALTERNATIVE VERSION
+    def average_max_min_alternative(self):
+        start = time.time()
+        print("\nTASK 2 ALTERNATIVE VERSION\n \n")
+        users = self.db["users"]
+        users = users.aggregate([
+            {"$unwind": "$activities"},
+            {"$group": {"$_id": "_id"}}
+        ]
+        )
+        try:
+            record = users.next()
+            print(record)
+        except StopIteration:
+            print("Empty cursor!")
+
+        ac_min = float("inf")
+        ac_max = -float("inf")
+        # print("Minimum number of activitites:", ac_min)
+        # print("Maximum number of activitites:", ac_max)
+        # print("Average number of activitites:", ac_avg)
+        print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
+
 
     # TASK 3
     def top_10_users(self):
@@ -74,27 +98,8 @@ class Queries:
             print("%s| User %s has %s stored activities" %
                   (i+1, top[0], top[1]))
         print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
-
+        
     # TASK 4
-    def started_one_day_ended_next(self):
-        start = time.time()
-        print("\nTASK 4 \n \n")
-        users = self.db["users"]
-        users = users.find({})
-        result = set()
-        for user in users:
-            for ac in user["activities"]:
-                ac_start = ac["start_date_time"] + datetime.timedelta(days=1)
-                ac_end = ac["end_date_time"]
-                next_day = ac_start.day == ac_end.day
-                if next_day:
-                    result.add(user["_id"])
-                    break
-        amount = len(result)
-        print("Amount of users with activities ending the day after starting:", amount)
-        print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
-
-        # TASK 4
     def started_one_day_ended_next(self):
         start = time.time()
         print("\nTASK 4 \n \n")
@@ -145,18 +150,17 @@ def main():
 
     # TASK 1
     q.count_all_entries()
-
     # TASK 2
-    q.average_max_min()
-
+    #q.average_max_min()
+    #q.average_max_min_alternative()
     # TASK 3
-    q.top_10_users()
+    #q.top_10_users()
 
     # TASK 4
-    q.started_one_day_ended_next()
+    #q.started_one_day_ended_next()
 
     # TASK 5
-    q.duplicate_activities()
+    #q.duplicate_activities()
 
 
 main()
