@@ -1,9 +1,11 @@
 from typing import List
+
+from numpy.testing._private.utils import tempdir
 from DbConnector import DbConnector
 import time
 from datetime import datetime, timedelta
 import haversine as hs
-
+import pandas as pd
 
 class Queries:
     def __init__(self):
@@ -50,29 +52,6 @@ class Queries:
         print("Minimum number of activitites:", ac_min)
         print("Maximum number of activitites:", ac_max)
         print("Average number of activitites:", ac_avg)
-        print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
-
-    # TASK 2 ALTERNATIVE VERSION
-    def average_max_min_alternative(self):
-        start = time.time()
-        print("\nTASK 2 ALTERNATIVE VERSION\n \n")
-        users = self.db["users"]
-        users = users.aggregate([
-            {"$unwind": "$activities"},
-            {"$group": {"$_id": "_id"}}
-        ]
-        )
-        try:
-            record = users.next()
-            print(record)
-        except StopIteration:
-            print("Empty cursor!")
-
-        ac_min = float("inf")
-        ac_max = -float("inf")
-        # print("Minimum number of activitites:", ac_min)
-        # print("Maximum number of activitites:", ac_max)
-        # print("Average number of activitites:", ac_avg)
         print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
 
     # TASK 3
@@ -303,38 +282,62 @@ class Queries:
         start = time.time()
         print("\nTASK 11 \n \n")
         users = self.db["users"]
+        users = users.find({})
         trackpoints = self.db["trackpoints"]
-        trackpoints = list(trackpoints.find({"activity_id": "020"}))
-        users = list(users.find({}))
-        print(len(trackpoints))
 
         result = []
-        """
         for user in users:
             print("User", user["_id"])
             ac_list = user["activities"]
             total_user_alt = 0
             total_ac_alt = 0
             for ac in ac_list:
-                tp_list = list(filter(lambda tp: tp["activity_id"] == ac["_id"], trackpoints))
+                tp_list = list(trackpoints.find({"altitude": {"$ne": -777}, "activity_id": ac["_id"]}, {"activity_id": 1, "altitude": 1, "_id": 0}))
                 for i in range(len(tp_list) - 1):
                     diff = tp_list[i+1]["altitude"] - tp_list[i]["altitude"]
                     if diff > 0:
                         total_ac_alt += diff
-                total_user_alt += total_ac_alt
-            
+                total_user_alt += total_ac_alt * 0.3048
+                total_ac_alt = 0
             result.append((user["_id"], total_user_alt))
-        print(result)
-        """
-                    
-
-                    
-                    
-
-
+            
+        
+        df = pd.DataFrame(list(sorted(result, key=lambda item: item[1], reverse=True)[:20]), columns=["UserID", "Altitude gained in meters"])
+        pd.set_option('display.max_rows', df.shape[0]+1)
+        print(df.to_string(index=False))
 
         print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
 
+    # TASK 12
+    def invalid_activities(self):
+        start = time.time()
+        print("\nTASK 12 \n \n")
+        users = self.db["users"]
+        users = users.find({})
+        trackpoints = self.db["trackpoints"]
+
+        result = []
+        for user in users:
+            print("User", user["_id"])
+            ac_list = user["activities"]
+            ac_count = 0
+            for ac in ac_list:
+                tp_list = list(trackpoints.find({"activity_id": ac["_id"]}, {"activity_id": 1, "date_time": 1, "_id": 0}))
+                for i in range(len(tp_list) - 1):
+                    time1 = tp_list[i]["date_time"]
+                    time2 = tp_list[i+1]["date_time"] 
+                    if (time2 - time1).total_seconds() > 300:
+                        ac_count += 1
+                        break
+            result.append((user["_id"], ac_count))
+                      
+        df = pd.DataFrame(list(sorted(result, key=lambda item: item[1], reverse=True)[:20]), columns=["UserID", "AMount of invalid activities"])
+        pd.set_option('display.max_rows', df.shape[0]+1)
+        print(df.to_string(index=False))
+
+        print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
+
+    
 
 def distance(loc1, loc2):
     return hs.haversine(loc1, loc2)
@@ -377,7 +380,10 @@ def main():
     #q.user_112_walk_2008()
 
     #Task 11
-    q.top_20_users_altitude()
+    #q.top_20_users_altitude()
+
+    #Task 12
+    q.invalid_activities()
 
 
 main()
