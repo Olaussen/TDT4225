@@ -224,31 +224,31 @@ def main():
     #q.users_start_on_one_day_end_the_next_day()
 
     # TASK 5
-    q.find_duplicate_activities()
+    #q.find_duplicate_activities()
 
     # TASK 6
-    q.covid_19_tracking()
+    #q.covid_19_tracking()
 
     # TASK 7
     q.never_taken_taxi()
 
     # TASK 8
-    q.transportation_mode_count()
+    #q.transportation_mode_count()
 
     # TASK 9a
-    q.most_active_year()
+    #q.most_active_year()
 
     # TASK 9b
-    q.user_with_most_activities_from_9a()
+    #q.user_with_most_activities_from_9a()
 
     # TASK 10
-    q.distance_walked_in_2008()
+    #q.distance_walked_in_2008()
 
     # TASK 11
-    q.most_altitude_gained()
+    #q.most_altitude_gained()
 
     # Task 12
-    q.invalid_activities()
+    #q.invalid_activities()
 
 
 main()
