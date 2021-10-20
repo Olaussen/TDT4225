@@ -35,7 +35,7 @@ class Queries:
         start = time.time()
         print("\nTASK 2 \n \n")
         users = self.db["users"]
-        users = users.find({})
+        users = list(users.find({}))
         ac_total = 0
         ac_min = float("inf")
         ac_max = -float("inf")
@@ -47,7 +47,7 @@ class Queries:
 
             if length < ac_min:
                 ac_min = length
-        ac_avg = ac_total / users.count()
+        ac_avg = ac_total / len(users)
 
         print("Minimum number of activitites:", ac_min)
         print("Maximum number of activitites:", ac_max)
@@ -88,7 +88,7 @@ class Queries:
         result = set()
         for user in users:
             for ac in user["activities"]:
-                ac_start = ac["start_date_time"] + datetime.timedelta(days=1)
+                ac_start = ac["start_date_time"] + timedelta(days=1)
                 ac_end = ac["end_date_time"]
                 next_day = ac_start.day == ac_end.day
                 if next_day:
@@ -347,40 +347,40 @@ def main():
     q = Queries()
 
     # TASK 1
-    # q.count_all_entries()
+    q.count_all_entries()
 
     # TASK 2
-    # q.average_max_min()
+    q.average_max_min()
 
     # TASK 3
-    # q.top_10_users()
+    q.top_10_users()
 
     # TASK 4
-    # q.started_one_day_ended_next()
+    q.started_one_day_ended_next()
 
     # TASK 5
-    # q.duplicate_activities()
+    q.duplicate_activities()
 
     # TASK 6
-    # q.covid_19_tracking()
+    q.covid_19_tracking()
 
     # TASK 7
-    # q.users_no_taxi()
+    q.users_no_taxi()
 
     # TASK 8
-    # q.transportation_mode_usage()
+    q.transportation_mode_usage()
 
     # TASK 9a
-    #q.year_month_most_activities()
+    q.year_month_most_activities()
 
     # TASK 9b
-    #q.user_with_most_activities_11_2008()
+    q.user_with_most_activities_11_2008()
 
     # TASK 10
-    #q.user_112_walk_2008()
+    q.user_112_walk_2008()
 
     #Task 11
-    #q.top_20_users_altitude()
+    q.top_20_users_altitude()
 
     #Task 12
     q.invalid_activities()
