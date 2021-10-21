@@ -94,10 +94,11 @@ class Preprocessor:
         current_activities = []
         for root, _, files in os.walk("./dataset/Data"):
             user_id = root.split("./dataset/Data")[1][1:4]
-            is_trajectory = root.split("./dataset/Data")[1][5:] != ""
-            if not is_trajectory:
+            is_user = root.split("./dataset/Data")[1][5:] != ""
+            if not is_user:
                 continue
 
+            # Updating the users list when we arrive at a new user id in the files
             if user_id != current_user["_id"]:
                 current_user["activities"] = current_activities
                 self.users.append(current_user)
@@ -106,18 +107,22 @@ class Preprocessor:
                                 "has_labeled": has_labeled}
                 current_activities = []
                 print("Currently on user:", user_id)
+            # We not go through the activities
             for file in files:
                 path = os.path.join(root, file)
-                activity_id = file[:-4] + user_id
+                activity_id = file[:-4] + user_id # User id will have the users id as the last 3 characters
                 opened = pd.read_csv(
                     path, names=["lat", "lon", "skip", "alt", "days", "date", "time"], skiprows=6)
+                # Fixed from assignment 2 :))
                 if len(opened) > 2500:
                     continue
+                # Gets the start and end dates for an activity file
                 start, end = self.extract_date_times(opened)
                 if current_user["has_labeled"]:
                     labels_file = pd.read_csv(
                         "./dataset/Data/%s/labels.txt" % (user_id), sep="\t", header=None, skiprows=1)
                     labels_file.columns = ["start", "end", "mode"]
+                    # Gets the transportation mode if it is labeled
                     mode = self.has_transportation_mode(
                         labels_file, start, end)
                     activity = {"_id": activity_id, "transportation_mode": mode,
@@ -126,20 +131,14 @@ class Preprocessor:
                     activity = {"_id": activity_id, "transportation_mode": None,
                                 "start_date_time": start, "end_date_time": end}
                 for _, trackpoint in opened.iterrows():
+                    # Adds the trackpoints in the list with the GeoSpatial coordinates 
                     date = datetime.fromisoformat("{} {}".format(trackpoint["date"], trackpoint["time"]))
                     self.trackpoints.append({"activity_id": activity_id, "location": {"type": "Point", "coordinates": [trackpoint["lon"], trackpoint["lat"]]},
                                         "altitude": trackpoint["alt"], "date_days": trackpoint["days"], "date_time": date})
                 current_activities.append(activity)
+        # Adds the last user as the loop will end and not add it
         current_user["activities"] = current_activities
         self.users.append(current_user)
-
-        """
-        with open("users.json", "w") as f:
-            dump(self.users, f)
-        
-        with open("trackpoints.json", "w") as f:
-            dump(self.trackpoints, f)
-        """
 
 
 def main():

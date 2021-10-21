@@ -19,8 +19,6 @@ class DbHandler:
         collection = self.db[collection]
         collection.insert_many(data)
     
-    def update_coordinates(self):
-        self.db["trackpoints"].update_many({ },[{ "$set": { "location": {"type": "Point", "coordinates": ["$location.coordinates.0", "$location.coordinates.1"] }}}])
         
     def fetch_documents(self, collection_name):
         collection = self.db[collection_name]
@@ -48,9 +46,9 @@ def main():
         #program.drop_coll(collection_name='users')
         #program.drop_coll(collection_name='trackpoints')
         #program.create_coll("users")
-        program.create_coll("trackpoints")
-        program.insert_documents("users", p.users)
-        program.insert_documents("trackpoints", p.trackpoints)
+        #program.create_coll("trackpoints")
+        #program.insert_documents("users", p.users)
+        #program.insert_documents("trackpoints", p.trackpoints)
         #program.update_coordinated()
         #program.fetch_documents("users")
         # Check that the table is dropped
