@@ -239,12 +239,13 @@ class Queries:
             ac = user["activities"]
             if ac["start_date_time"].year == YEAR and ac["start_date_time"].month == MONTH:
                 if user["_id"] in result:
-                    result[user["_id"]] += 1
+                    result[user["_id"]]["amount"] += 1
+                    result[user["_id"]]["hours"] += (ac["end_date_time"] - ac["start_date_time"]).total_seconds()/3600
                 else:
-                    result[user["_id"]] = 1
-        result = list(sorted(result.items(), key=lambda item: item[1], reverse=True))[0]
-
-        print("User %s has the most activities in %s-%s, with %s activities" % (result[0], MONTH, YEAR, result[1]))
+                    result[user["_id"]] = {"amount": 1, "hours":(ac["end_date_time"] - ac["start_date_time"]).total_seconds()/3600}
+        result = list(sorted(result.items(), key=lambda item: item[1]["amount"], reverse=True))[:2]
+        print("1| User %s has the most activities in %s-%s, with %s activities and a total of %s hours" % (result[0][0], MONTH, YEAR, result[0][1]["amount"], round(result[0][1]["hours"], 4)))
+        print("2| User %s has the second most activities in %s-%s, with %s activities and a total of %s hours, which is more than number one" % (result[1][0], MONTH, YEAR, result[1][1]["amount"], round(result[1][1]["hours"], 4)))
         print("\nTime used: %s seconds" % (round(time.time() - start, 5)))
 
     # TASK 10
@@ -314,7 +315,6 @@ class Queries:
         users = self.db["users"]
         users = users.find({})
         trackpoints = self.db["trackpoints"]
-
         result = []
         for user in users:
             ac_list = user["activities"]
@@ -345,43 +345,43 @@ def main():
     q = Queries()
 
     # TASK 1
-    q.count_all_entries()
+    #q.count_all_entries()
 
     # TASK 2
-    q.average_max_min()
+    #q.average_max_min()
 
     # TASK 3
-    q.top_10_users()
+    #q.top_10_users()
 
     # TASK 4
-    q.started_one_day_ended_next()
+    #q.started_one_day_ended_next()
 
     # TASK 5
-    q.duplicate_activities()
+    #q.duplicate_activities()
 
     # TASK 6
-    q.covid_19_tracking()
+    #q.covid_19_tracking()
 
     # TASK 7
-    q.users_no_taxi()
+    #q.users_no_taxi()
 
     # TASK 8
-    q.transportation_mode_usage()
+    #q.transportation_mode_usage()
 
     # TASK 9a
-    q.year_month_most_activities()
+    #q.year_month_most_activities()
 
     # TASK 9b
     q.user_with_most_activities_11_2008()
 
     # TASK 10
-    q.user_112_walk_2008()
+    #q.user_112_walk_2008()
 
     #Task 11
-    q.top_20_users_altitude()
+    #q.top_20_users_altitude()
 
     #Task 12
-    q.invalid_activities()
+    #q.invalid_activities()
 
 
 main()
