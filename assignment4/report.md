@@ -96,3 +96,20 @@ If a write is dependent on some data which have been altered within its commit, 
 
 We can use the example Kleppmann uses. Both doctors Bob and Alice wants to check whether or not two or more doctors are on call. If this is true, they will put themselves off call. There must always be one doctor on call. They only change their own table. As both doctors check this concurrently - the condition of two or more will be true for both. As we are using SSI, a snapshot have been created at the start of the transactions. When alice commits, Bob is unaware that she has gone off, and goes off himself. However, the transaction manager sees that Alices value has changed from the snapshot, refusing Bob to commit his changes, and aborts the transaction. Bob still has to work. 
 
+\newpage
+## 4. Kleppmann Chap 8
+
+a) 
+**If you send a message in a network and you do not get a reply, what could have happened? List some alternatives.**
+
+There are countless things that can be the reason for not getting a reply to a message sent over a network. It can be that the machine you are sending the message to is not connected to the network, and is then unable to answer it. It can be that the sender lost internet connection before recieving the reply. If the sender or reciever of the message has a very high load on its network, it can cause delays larger than the timeout, resulting in the sender not getting the reply within the expected timeframe. It can also happen that both machines work as they should, without any problem, but somewhere along the way the reply to the message was lost. Maybe due to a faulty machine or network relayer. 
+
+b) 
+**Explain why and how using clocks for last write wins could be dangerous.**
+
+As clocks may differ from node to node, relying on clocks for *last write wins* may result in data being dropped silently. In a many leader scenario, if two machines get instructions within a timeframe shorter than their clocks differ, this could result in one of the instructions being lost in a third machine who replicates the data - as it will think that the operation with the latest time wins the race, when in fact this was the latter operation, but the clocks were wrong. If we could ensure that the all clocks were equal at any point in time, this would work, but we can not - hence, it is dangerous to rely on them.
+
+c) 
+**Given the example from the text book on “process pauses”, what is the problem with this solution to obtaining lock leases?**
+
+As the example relies on synchronized clocks, we may fall into some pits. The `lease.expiryTimeMillis` field is set by another computer, which most likely will have a clock that differs from the leader's. If this difference is large, it may cause the leader to think it is still the leader, when it's actually not, or vice versa. We may also have some problems if the process pauses in the middle of execution. This may cause the first lines to execute fine, making the leader not renew the lease as the old one is still fine, but the later lines will be executes some time after, which might be when the lease is not valid anymore. This will, once again, lead to the leader thinking its the leader, when some other node has taken over the job.
