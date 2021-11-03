@@ -113,3 +113,57 @@ c)
 **Given the example from the text book on “process pauses”, what is the problem with this solution to obtaining lock leases?**
 
 As the example relies on synchronized clocks, we may fall into some pits. The `lease.expiryTimeMillis` field is set by another computer, which most likely will have a clock that differs from the leader's. If this difference is large, it may cause the leader to think it is still the leader, when it's actually not, or vice versa. We may also have some problems if the process pauses in the middle of execution. This may cause the first lines to execute fine, making the leader not renew the lease as the old one is still fine, but the later lines will be executes some time after, which might be when the lease is not valid anymore. This will, once again, lead to the leader thinking its the leader, when some other node has taken over the job.
+
+## 5. Kleppmann Chap 9
+
+a) 
+**Explain the connection between ordering, linearizability and consensus.**
+
+The goal of lineraizability is to make a system appear as if there is only one copy of the data. This means that when two users request some data, they should recieve the same values at any point in time. Ordering helps perserve *causality*, which means that we can be certain that requests that depend on each other, happens in the order we want it to. Concurrent requests can be ordered arbitrarily. En example is that a question cannot be answered before it is asked. In a linearizable system, we have a total order of operations - meaning that we can pick any two elements, and compare them (who came before the other). Ordering on *causailty* will be a partial ordering, as we can compare some elements, but not all. One type of ordering used is *timestamp ordering*, where nodes keep track of requests. Consensus concerns getting nodes to agree on something. This can be on who the leader node is, what the outcome of a transaction will be, or something else. Consensus involves a asynchronous system of processes, which might be unreliable. Total order broadcast is a protocol for exchanging messages between nodes that must ensure reability and that the ordering properties are always satisfied. The order is fices at the time the messages are delivered, meaning that a node cannot change the order of the messages if earlier messages have alreay been delivred - making total order broadcast stronger than timestamp ordering.
+
+b) 
+**Are there any distributed data systems which are usable even if they are not linearizable? Explain your answer.**
+
+Yes. As linearizability comes with a performance hit, many opts to not support it. If the system supports linearizability nodes will become unavailable if theu are disconnected from other nodes, and not neccessarily end users. This will lead to more "dead" nodes than it actually is. The system will also take a longer time to process requests, as we have to ensure that the data sent back is the latest written. If the system is not linearizable each node can process the requests independently, even if it is disconnected from other nodes. The system will be available if a network error (or some other error) occurs, but it might not give the absolute latest updated data.
+This tradeoff is described in the CAP theorem, which says that you can pick 2 out of 3 of *Consistensy*, *Availability* and *Partition*, but you can not have all three. Kleppmann argues that a better way to phrase it is "*either Consistent or Available when Partitioned*", as you can have a linearizable available system if it is not partitioned, but of course, with one points of failure. He also argues that this theorem is highly debated and narrow with a lot of misunderstanding and confusion - hinting that there might exist some solutions to the problem.
+
+## 6. Coulouris Chap 14
+
+a) 
+**Given two events e and f. Assume that the logical (Lamport) clock values L are such that L (e) < L (f). Can we then deduce that e "happened before" f? Why? What happens if one uses vector clocks instead? Explain.**
+
+No we cannot. The implication only goes one way. If an event *e* happened before an event *f* (physically), we can be absolutely sure that this will be represented correctly as *L(e) < L(f)* with Lamport timestamps, but not vice versa. This is because *e* and *f* can be concurrent events, just ordered in this way to perserve the total order. If we were to use vector clocks, this will not be the case. A process will increment its designated position in the vector every time an event occurs. This means that we can directly compare the values of the vector to find out if events happend before, after or concurrently with one another. If *V(e) < V(f)* then *e* happened before *f*.  If *V(f) < V(e)* then *e* happened after *f*. And if *V(e) <= V(f) and V(f) <= V(e)* then *e* and *f* are concurrent.
+
+\newpage
+b) 
+**The figure below shows three processes and several events. Vector clock values are given for some of the events. Give the vector clock values for the remaining events.**
+
+|   |            |
+|---|------------|       
+|*b*| `(4, 0, 0)`|
+|*k*| `(4, 2, 0)`|
+|*m*| `(4, 3, 0)`|
+|*c*| `(4, 3, 2)`|
+|*u*| `(4, 4, 0)`|
+|*n*| `(5, 4, 0)`|
+
+c) 
+**The figure below shows the events that occur at two processes P1 and P2. The arrows mean sending of messages. Show the alternative consistent states the system can have had. Start from state S00. (Sxy where x is p1's state and y is p2's state)**
+
+See figure 4.
+
+![Alternative consistent states](./images/consistent_states.PNG)
+
+## 7. RAFT
+
+**RAFT has a concept where the log is replicated to all participants. How does RAFT ensure that the log is equal on all nodes in case of a crash and a new leader?**
+
+## 8. Dynamo
+
+**Explain the following concepts/techniques used in Dynamo:**
+
+- consistent hashing
+- vector clocks
+- sloppy quorum and hinted handoff
+- merkle trees
+- gossip-based membership protocol
